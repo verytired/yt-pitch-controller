@@ -1,0 +1,300 @@
+/* ===== YT Pitch Changer : CDJ / ターンテーブル風ピッチフェーダー ===== */
+
+#ytpc-panel {
+  --ytpc-bg: #15171b;
+  --ytpc-bg2: #0d0e11;
+  --ytpc-line: #2c3037;
+  --ytpc-text: #e6e9ee;
+  --ytpc-dim: #757c88;
+  --ytpc-accent: #37c3ff;
+  --ytpc-accent-dim: #1b5e7a;
+  --ytpc-track-h: 190px;
+  --ytpc-handle-h: 26px;
+
+  position: fixed;
+  top: 96px;
+  right: 24px;
+  z-index: 2147483000;
+  width: 152px;
+  background: linear-gradient(180deg, #1c1f24 0%, var(--ytpc-bg) 42%, var(--ytpc-bg2) 100%);
+  border: 1px solid var(--ytpc-line);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .06);
+  color: var(--ytpc-text);
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: "SF Mono", "Menlo", "Consolas", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+#ytpc-panel * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  line-height: 1.1;
+}
+
+#ytpc-panel button {
+  background: #22262c;
+  border: 1px solid var(--ytpc-line);
+  border-radius: 4px;
+  color: var(--ytpc-dim);
+  cursor: pointer;
+  font-size: 10px;
+  letter-spacing: .04em;
+  padding: 5px 0;
+  text-transform: none;
+  transition: background .12s, color .12s, border-color .12s;
+}
+
+#ytpc-panel button:hover {
+  background: #2b3038;
+  color: var(--ytpc-text);
+}
+
+#ytpc-panel button.ytpc-on {
+  background: var(--ytpc-accent-dim);
+  border-color: var(--ytpc-accent);
+  color: #eafaff;
+  box-shadow: 0 0 8px rgba(55, 195, 255, .35);
+}
+
+/* ---- ヘッダ（ドラッグで移動） ---- */
+.ytpc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--ytpc-line);
+  cursor: grab;
+}
+
+.ytpc-head.ytpc-grabbing { cursor: grabbing; }
+
+.ytpc-title {
+  font-size: 9px;
+  letter-spacing: .18em;
+  color: var(--ytpc-dim);
+}
+
+.ytpc-min {
+  width: 18px;
+  height: 16px;
+  padding: 0 !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+/* ---- 数値表示 ---- */
+.ytpc-body { padding: 8px; }
+
+.ytpc-readout {
+  background: #08090b;
+  border: 1px solid #23272e;
+  border-radius: 6px;
+  padding: 7px 8px 6px;
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.ytpc-pct {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--ytpc-dim);
+  transition: color .15s, text-shadow .15s;
+}
+
+.ytpc-pct i {
+  font-size: 12px;
+  font-style: normal;
+  color: var(--ytpc-dim);
+  margin-left: 2px;
+}
+
+/* 変化中／0%以外のときに発光 */
+#ytpc-panel.ytpc-active .ytpc-pct {
+  color: var(--ytpc-accent);
+  text-shadow: 0 0 12px rgba(55, 195, 255, .55);
+}
+
+#ytpc-panel.ytpc-moving .ytpc-pct {
+  color: #fff;
+  text-shadow: 0 0 16px rgba(55, 195, 255, .9);
+}
+
+.ytpc-bpm {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #1c2027;
+  font-size: 14px;
+  color: var(--ytpc-text);
+  cursor: text;
+}
+
+.ytpc-bpm.ytpc-empty { color: var(--ytpc-dim); }
+
+.ytpc-bpm i {
+  font-size: 9px;
+  font-style: normal;
+  color: var(--ytpc-dim);
+  margin-left: 3px;
+  letter-spacing: .06em;
+}
+
+.ytpc-bpm input {
+  width: 52px;
+  background: #14181e;
+  border: 1px solid var(--ytpc-accent);
+  border-radius: 3px;
+  color: var(--ytpc-text);
+  font-size: 13px;
+  text-align: right;
+  padding: 1px 3px;
+  outline: none;
+}
+
+/* ---- フェーダー ---- */
+.ytpc-fader {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  padding: 2px 0 4px;
+}
+
+.ytpc-scale {
+  position: relative;
+  width: 26px;
+  height: var(--ytpc-track-h);
+  font-size: 8px;
+  color: var(--ytpc-dim);
+}
+
+.ytpc-scale span {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+.ytpc-ticks {
+  position: relative;
+  width: 9px;
+  height: var(--ytpc-track-h);
+}
+
+.ytpc-ticks i {
+  position: absolute;
+  right: 0;
+  height: 1px;
+  width: 4px;
+  background: #3a4048;
+}
+
+.ytpc-ticks i.ytpc-tick-mid { width: 9px; background: #5d6672; }
+
+.ytpc-track {
+  position: relative;
+  width: 34px;
+  height: var(--ytpc-track-h);
+  background: linear-gradient(90deg, #0a0b0d 0%, #101317 50%, #0a0b0d 100%);
+  border: 1px solid #262a31;
+  border-radius: 5px;
+  cursor: ns-resize;
+  outline: none;
+  touch-action: none;
+}
+
+#ytpc-panel .ytpc-track:focus-visible {
+  border-color: var(--ytpc-accent);
+  box-shadow: 0 0 0 1px rgba(55, 195, 255, .4);
+}
+
+/* センターの溝 */
+.ytpc-track::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 13px;
+  bottom: 13px;
+  width: 3px;
+  margin-left: -1.5px;
+  background: #050607;
+  border-radius: 2px;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, .9);
+}
+
+/* センター（0.0%）のクリックポイント */
+.ytpc-center {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 50%;
+  height: 1px;
+  margin-top: -.5px;
+  background: #6b7480;
+  pointer-events: none;
+}
+
+.ytpc-handle {
+  position: absolute;
+  left: -3px;
+  right: -3px;
+  height: var(--ytpc-handle-h);
+  top: 0;
+  background: linear-gradient(180deg, #e8ebef 0%, #b8bec7 45%, #8b929c 55%, #d2d7dd 100%);
+  border: 1px solid #5c636d;
+  border-radius: 3px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .6);
+  pointer-events: none;
+}
+
+/* つまみ中央の指標線 */
+.ytpc-handle::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: #d0161d;
+  border-radius: 1px;
+}
+
+#ytpc-panel.ytpc-moving .ytpc-handle {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .6), 0 0 10px rgba(55, 195, 255, .5);
+}
+
+/* ---- レンジ / ボタン ---- */
+.ytpc-ranges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.ytpc-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.ytpc-btns .ytpc-mt { grid-column: 1 / -1; }
+
+.ytpc-hint {
+  margin-top: 6px;
+  font-size: 8px;
+  line-height: 1.35;
+  color: #565d68;
+  text-align: center;
+}
+
+/* ---- 最小化時 ---- */
+#ytpc-panel.ytpc-collapsed { width: 96px; }
+#ytpc-panel.ytpc-collapsed .ytpc-body { display: none; }
+
+/* ---- 非表示 ---- */
+#ytpc-panel.ytpc-hidden { display: none; }

@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "YT Pitch Changer",
+  "version": "1.0.0",
+  "description": "ターンテーブル/CDJ風のピッチフェーダーをYouTube上に表示し、±8/±10/±16% でスピードを変更できます。",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}
