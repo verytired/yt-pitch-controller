@@ -1,64 +1,64 @@
 # YT Pitch Changer
 
-YouTube の再生画面に**ターンテーブル / CDJ 風のピッチフェーダー**を重ねて表示する Chrome 拡張機能です。
-±8% / ±10% / ±16% のレンジでスピードを変更でき、変化量（%）と BPM をリアルタイムに表示します。
+A Chrome extension that overlays a **turntable / CDJ-style pitch fader** on the YouTube player.
+Change the playback speed within a ±8% / ±10% / ±16% range, with the pitch change (%) and BPM shown in real time.
 
-## インストール
+## Installation
 
-1. Chrome で `chrome://extensions` を開く
-2. 右上の **デベロッパーモード** を ON
-3. **パッケージ化されていない拡張機能を読み込む** をクリック
-4. このフォルダ（`yt-pitch-changer`）を選択
-5. YouTube の動画ページを開く（すでに開いていたページはリロード）
+1. Open `chrome://extensions` in Chrome
+2. Turn on **Developer mode** (top right)
+3. Click **Load unpacked**
+4. Select this folder (`yt-pitch-changer`)
+5. Open a YouTube video page (reload any page that was already open)
 
-## 使い方
+## Usage
 
-画面右上にパネルが表示されます。
+The panel appears in the top-right corner of the screen.
 
-| 操作 | 動作 |
+| Action | Result |
 | --- | --- |
-| フェーダーをドラッグ | ピッチ変更（上＝マイナス、下＝プラス。Technics / CDJ と同じ向き） |
-| トラックをクリック | その位置へジャンプ。中央付近は 0.00% にスナップ |
-| ダブルクリック | 0.00% に戻す |
-| ホイール | 0.10% ずつ微調整（Shift 併用で 0.05%） |
-| ↑ / ↓ キー | 0.10% ずつ微調整（Shift 併用で 0.05%）※フェーダーをクリックしてフォーカスした状態で |
-| `±8` `±10` `±16` | レンジ切替。レンジを狭めると現在値は自動でクランプされます |
-| `MASTER TEMPO` | ON = 音程を保持して速度だけ変える / **OFF（既定）= ターンテーブル同様に音程も一緒に動く** |
-| `TAP` | 曲の拍に合わせて数回タップすると BPM を検出。長押しでクリア |
-| BPM 表示をクリック | 原曲の BPM を手入力（数値を直接指定したいとき） |
-| `RESET` | 0.00% に戻す |
-| ヘッダー（`PITCH`）をドラッグ | パネルの移動（位置は保存されます） |
-| `–` ボタン | 最小化 |
-| `Alt + P` | パネルの表示 / 非表示 |
+| Drag the fader | Change pitch (up = minus, down = plus — same direction as Technics / CDJ) |
+| Click the track | Jump to that position. Snaps to 0.00% near the center |
+| Double-click | Reset to 0.00% |
+| Mouse wheel | Fine-tune by 0.10% (0.05% with Shift) |
+| ↑ / ↓ keys | Fine-tune by 0.10% (0.05% with Shift) — while the fader is focused (click it first) |
+| `±8` `±10` `±16` | Switch range. Narrowing the range automatically clamps the current value |
+| `MASTER TEMPO` | ON = change speed only, keeping the key / **OFF (default) = pitch moves with speed, like a turntable** |
+| `TAP` | Tap along with the beat a few times to detect BPM. Long-press to clear |
+| Click the BPM display | Enter the original BPM manually (when you want to set an exact value) |
+| `RESET` | Reset to 0.00% |
+| Drag the header (`PITCH`) | Move the panel (position is saved) |
+| `–` button | Minimize |
+| `Alt + P` | Show / hide the panel |
 
-### 数値表示
+### Display
 
-- 大きい数字が現在のピッチ（例 `-2.50%`）。0% 以外では青く点灯し、操作中はさらに強く光ります
-- その下が現在の BPM。`TAP` か手入力で原曲 BPM を教えると、`原曲BPM × 再生レート`で実効 BPM を表示します
-- タップは「今聞こえている音」に対して行うので、ピッチを動かした状態でタップしても原曲 BPM は正しく逆算されます
+- The large number is the current pitch (e.g. `-2.50%`). It lights up blue when not at 0%, and glows brighter while you are adjusting it
+- Below it is the current BPM. Once you provide the original BPM via `TAP` or manual input, the effective BPM is shown as `original BPM × playback rate`
+- Taps are measured against what you are hearing right now, so the original BPM is correctly back-calculated even if you tap while the pitch is shifted
 
-## 仕様メモ
+## Implementation Notes
 
-- 速度変更は `video.playbackRate`、音程の連動は `video.preservesPitch = false` で実現しています（実機の YouTube で挙動を確認済み）
-- ピッチが 0.00% のときは YouTube 側の再生速度メニューを尊重します。0% 以外のときに YouTube 側から上書きされた場合は、拡張側の値を取り戻します
-- 動画を切り替える（SPA 遷移）とピッチは 0.00% にリセットされます。レンジ / MASTER TEMPO / BPM / パネル位置は保存されます
-- 全画面表示にも追従します（フルスクリーン要素側にパネルを付け替え）
+- Speed changes use `video.playbackRate`, and pitch linking uses `video.preservesPitch = false` (verified on real YouTube)
+- When the pitch is 0.00%, YouTube's own playback speed menu is respected. When the pitch is non-zero and YouTube overrides it, the extension restores its own value
+- Switching videos (SPA navigation) resets the pitch to 0.00%. Range / MASTER TEMPO / BPM / panel position are saved
+- Works in fullscreen as well (the panel is re-attached to the fullscreen element)
 
-## カスタマイズ
+## Customization
 
-`content.js` 冒頭の定数で変更できます。
+You can change these via the constants at the top of `content.js`.
 
 ```js
-const FADER_INVERTED = true; // false にすると上＝プラスに反転
-const RANGES = [8, 10, 16];  // レンジのボタン
-const STEP = 0.05;           // 内部の最小刻み(%)
-const SNAP = 0.12;           // センターへのスナップ幅(%)
+const FADER_INVERTED = true; // set to false to invert (up = plus)
+const RANGES = [8, 10, 16];  // range buttons
+const STEP = 0.05;           // internal minimum step (%)
+const SNAP = 0.12;           // center snap width (%)
 ```
 
-## ファイル構成
+## Files
 
 ```
-manifest.json  拡張の定義（Manifest V3 / 権限は storage のみ）
-content.js     UI とピッチ制御のロジック
-content.css    CDJ 風パネルのスタイル
+manifest.json  Extension definition (Manifest V3 / only the storage permission)
+content.js     UI and pitch control logic
+content.css    CDJ-style panel styles
 ```
